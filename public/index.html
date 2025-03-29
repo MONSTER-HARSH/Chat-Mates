@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat-Mates</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #f4f4f4;
+      }
+
+      #chatContainer {
+        width: 30%;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      #messages {
+        list-style: none;
+        padding: 0;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      #messages li {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        background: #fcfcfc;
+        border: 1px solid #dbdbdb;
+      }
+
+      #sendButton {
+        background-color: blue;
+        color: aliceblue;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-left: 1%;
+        margin-top: 10px;
+      }
+
+      #sendButton:hover {
+        background-color: darkblue;
+      }
+
+      input {
+        height: 40px;
+        padding-left: 10px;
+        border-radius: 10px;
+        border: #b8b8b8 1px solid;
+      }
+
+      #messageInput {
+        width: 85%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chatContainer">
+      <h2>Chat-Mates</h2>
+      <input id="username" placeholder="Enter your name" autocomplete="off" />
+      <ul id="messages">
+        <li>
+          <strong>Harsh:</strong> The entire universe was created in 13.8 billion years… her reply? Still loading. 🌌😩
+        </li>
+      </ul>
+      <input
+        id="messageInput"
+        autocomplete="off"
+        placeholder="Type a message"
+      />
+      <button id="sendButton">Send</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      const messages = document.getElementById("messages");
+      const messageInput = document.getElementById("messageInput");
+      const sendButton = document.getElementById("sendButton");
+      const usernameInput = document.getElementById("username");
+
+      function sendMessage() {
+        const message = messageInput.value.trim();
+        const username = usernameInput.value.trim() || "Anonymous";
+
+        if (message !== "") {
+          socket.emit("chat message", { username, message });
+          messageInput.value = "";
+        }
+      }
+
+      sendButton.addEventListener("click", sendMessage);
+
+      document.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+          sendMessage();
+        }
+      });
+
+      socket.on("chat message", (data) => {
+        const item = document.createElement("li");
+        item.innerHTML = `<strong>${data.username}</strong>: ${data.message}`;
+        messages.appendChild(item);
+      });
+    </script>
+  </body>
+</html>
