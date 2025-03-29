@@ -103,12 +103,39 @@
       const sendButton = document.getElementById("sendButton");
       const usernameInput = document.getElementById("username");
 
+      function loadMessages() {
+        const storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+        storedMessages.forEach(({ username, message }) => {
+          appendMessage(username, message);
+        });
+      }
+
+      function saveMessage(username, message) {
+        const storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+        storedMessages.push({ username, message });
+        localStorage.setItem("chatMessages", JSON.stringify(storedMessages));
+      }
+
+      function appendMessage(username, message) {
+        const existingMessages = [...document.querySelectorAll("#messages li")];
+        if (existingMessages.some(msg => msg.innerHTML === `<strong>${username}</strong>: ${message}`)) {
+          return;
+        }
+
+        const item = document.createElement("li");
+        item.innerHTML = `<strong>${username}</strong>: ${message}`;
+        messages.appendChild(item);
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+
       function sendMessage() {
         const message = messageInput.value.trim();
         const username = usernameInput.value.trim() || "Anonymous";
 
         if (message !== "") {
           socket.emit("chat message", { username, message });
+          saveMessage(username, message);
           messageInput.value = "";
         }
       }
@@ -122,11 +149,10 @@
       });
 
       socket.on("chat message", (data) => {
-        const item = document.createElement("li");
-        item.innerHTML = `<strong>${data.username}</strong>: ${data.message}`;
-        messages.appendChild(item);
-        messages.scrollTop = messages.scrollHeight;
+        appendMessage(data.username, data.message);
+        saveMessage(data.username, data.message);
       });
+      loadMessages();
     </script>
   </body>
 </html>
