@@ -125,6 +125,7 @@
         const item = document.createElement("li");
         item.innerHTML = `<strong>${data.username}</strong>: ${data.message}`;
         messages.appendChild(item);
+        messages.scrollTop = messages.scrollHeight;
       });
     </script>
   </body>
