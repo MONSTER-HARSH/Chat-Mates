@@ -10,7 +10,8 @@ const io = new Server(server);
 app.use(express.static(path.join(__dirname, "./public")));
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  const clientIp = socket.handshake.address;
+  console.log(`A user connected from IP: ${clientIp}`);
 
   socket.on("disconnect", () => {
     console.log("User disconnected");
