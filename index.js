@@ -10,15 +10,16 @@ const io = new Server(server);
 app.use(express.static(path.join(__dirname, "./public")));
 
 io.on("connection", (socket) => {
-  const clientIp = socket.handshake.address;
+  const clientIp = socket.handshake.headers["x-forwarded-for"] || socket.handshake.address;
+
   console.log(`A user connected from IP: ${clientIp}`);
 
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    console.log(`User from ${clientIp} disconnected`);
   });
 
   socket.on("chat message", (data) => {
-    console.log("username: "+data.username+", message: " + data.message);
+    console.log(`IP: ${clientIp}, Username: ${data.username}, Message: ${data.message}`);
     io.emit("chat message", data);
   });
 });
